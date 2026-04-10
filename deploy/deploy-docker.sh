@@ -12,7 +12,7 @@ MYSQL_USERNAME="${MYSQL_USERNAME:-root}"
 MYSQL_PASSWORD="${MYSQL_PASSWORD:-zoumh}"
 
 mkdir -p "${DEPLOY_DIR}/data"
-docker exec "${MYSQL_CONTAINER}" mysql -u"${MYSQL_USERNAME}" -p"${MYSQL_PASSWORD}" -e "CREATE DATABASE IF NOT EXISTS \`${MYSQL_DATABASE}\` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
+docker exec "${MYSQL_CONTAINER}" mysql -u"${MYSQL_USERNAME}" -p"${MYSQL_PASSWORD}" -e "CREATE DATABASE IF NOT EXISTS ${MYSQL_DATABASE} DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
 
 docker build -t "${APP_NAME}:latest" .
 docker rm -f "${APP_NAME}" >/dev/null 2>&1 || true
