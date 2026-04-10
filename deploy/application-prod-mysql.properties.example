@@ -1,6 +1,6 @@
 server.port=${SERVER_PORT:8086}
 
-spring.datasource.url=${SPRING_DATASOURCE_URL:jdbc:mysql://mysql8:3306/qqauto?useUnicode=true&characterEncoding=utf8mb4&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Shanghai}
+spring.datasource.url=${SPRING_DATASOURCE_URL:jdbc:mysql://mysql8:3306/qqauto?useUnicode=true&characterEncoding=utf8&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Shanghai}
 spring.datasource.username=${SPRING_DATASOURCE_USERNAME:root}
 spring.datasource.password=${SPRING_DATASOURCE_PASSWORD:zoumh}
 spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver

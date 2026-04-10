@@ -39,7 +39,7 @@ pipeline {
             -e SPRING_PROFILES_ACTIVE=prod \
             -e SERVER_PORT=8086 \
             -e APP_CONTEXT_PATH=${APP_CONTEXT_PATH} \
-            -e SPRING_DATASOURCE_URL=jdbc:mysql://${MYSQL_CONTAINER}:3306/${MYSQL_DATABASE}?useUnicode=true\&characterEncoding=utf8mb4\&useSSL=false\&allowPublicKeyRetrieval=true\&serverTimezone=Asia/Shanghai \
+            -e SPRING_DATASOURCE_URL=jdbc:mysql://${MYSQL_CONTAINER}:3306/${MYSQL_DATABASE}?useUnicode=true\&characterEncoding=utf8\&useSSL=false\&allowPublicKeyRetrieval=true\&serverTimezone=Asia/Shanghai \
             -e SPRING_DATASOURCE_USERNAME=${MYSQL_USERNAME} \
             -e SPRING_DATASOURCE_PASSWORD=${MYSQL_PASSWORD} \
             -v ${DEPLOY_DIR}/data:/app/data \
