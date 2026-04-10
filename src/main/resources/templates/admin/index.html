@@ -21,6 +21,7 @@
       </div>
       <nav class="monitor-nav">
         <a class="active" th:href="@{/admin}">运行监控</a>
+        <a href="#users">用户管理</a>
         <a href="#announcements">公告管理</a>
         <a href="#products">套餐配置</a>
         <a href="#orders">订单管理</a>
@@ -46,6 +47,11 @@
           <div class="stat-sub">平台注册用户</div>
         </div>
         <div class="card stat-card">
+          <div class="stat-label">启用用户</div>
+          <div class="stat-value" style="color:var(--success);" th:text="${enabledUserCount}"></div>
+          <div class="stat-sub">可正常登录使用</div>
+        </div>
+        <div class="card stat-card">
           <div class="stat-label">接入 QQ</div>
           <div class="stat-value" style="color:var(--primary);" th:text="${qqAccounts.size()}"></div>
           <div class="stat-sub">当前托管账号</div>
@@ -60,6 +66,70 @@
           <div class="stat-value" style="color:var(--success);" th:text="${completedTaskExecutions}"></div>
           <div class="stat-sub">最近状态为已完成</div>
         </div>
+      </div>
+
+      <div class="stat-grid space-top">
+        <div class="card stat-card">
+          <div class="stat-label">累计成交</div>
+          <div class="stat-value" style="color:var(--accent);" th:text="'¥' + ${totalPaidAmount}"></div>
+          <div class="stat-sub">已支付与已开通订单</div>
+        </div>
+        <div class="card stat-card">
+          <div class="stat-label">用户余额池</div>
+          <div class="stat-value" th:text="'¥' + ${totalUserBalance}"></div>
+          <div class="stat-sub">平台内可用余额汇总</div>
+        </div>
+        <div class="card stat-card">
+          <div class="stat-label">待审充值</div>
+          <div class="stat-value" th:text="${pendingRechargeCount}"></div>
+          <div class="stat-sub">人工审核中</div>
+        </div>
+        <div class="card stat-card">
+          <div class="stat-label">待审提现</div>
+          <div class="stat-value" th:text="${pendingWithdrawCount}"></div>
+          <div class="stat-sub">人工审核中</div>
+        </div>
+      </div>
+
+      <div class="table-card space-top" id="users">
+        <div class="table-header">
+          <div>
+            <h3 style="margin:0;">用户管理</h3>
+            <div class="muted">支持查看余额与直接启停账号。</div>
+          </div>
+        </div>
+        <table>
+          <thead>
+          <tr>
+            <th>用户</th>
+            <th>显示名</th>
+            <th>QQ</th>
+            <th>等级</th>
+            <th>余额</th>
+            <th>状态</th>
+            <th>操作</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr th:each="item : ${users}">
+            <td th:text="${item.username}"></td>
+            <td th:text="${item.displayName}"></td>
+            <td th:text="${item.qqNumber}"></td>
+            <td th:text="${item.agentLevel}"></td>
+            <td th:text="'¥' + ${item.balance}"></td>
+            <td>
+              <span class="tag success" th:if="${item.enabled}">启用中</span>
+              <span class="tag danger" th:if="${!item.enabled}">已停用</span>
+            </td>
+            <td>
+              <form th:if="${item.role.name() != 'ADMIN'}" th:action="@{'/admin/user/' + ${item.id} + '/toggle'}" method="post">
+                <button class="btn-soft" type="submit" th:text="${item.enabled} ? '停用' : '恢复'"></button>
+              </form>
+              <span class="tag primary" th:if="${item.role.name() == 'ADMIN'}">管理员</span>
+            </td>
+          </tr>
+          </tbody>
+        </table>
       </div>
 
       <div class="table-card space-top">
@@ -170,6 +240,41 @@
               <form th:if="${item.status.name() != 'COMPLETED'}" th:action="@{'/admin/order/' + ${item.id} + '/approve'}" method="post">
                 <button class="btn-soft" type="submit">确认开通</button>
               </form>
+            </td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="table-card space-top">
+        <div class="table-header">
+          <div>
+            <h3 style="margin:0;">套餐总览</h3>
+            <div class="muted">当前可售套餐与推荐状态。</div>
+          </div>
+        </div>
+        <table>
+          <thead>
+          <tr>
+            <th>名称</th>
+            <th>分类</th>
+            <th>版本标记</th>
+            <th>价格</th>
+            <th>时长</th>
+            <th>状态</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr th:each="item : ${products}">
+            <td th:text="${item.name}"></td>
+            <td th:text="${item.category}"></td>
+            <td th:text="${item.versionTag}"></td>
+            <td th:text="'¥' + ${item.price}"></td>
+            <td th:text="${item.durationDays} + ' 天'"></td>
+            <td>
+              <span class="tag success" th:if="${item.active}">启用</span>
+              <span class="tag danger" th:if="${!item.active}">停用</span>
+              <span class="tag primary" th:if="${item.featured}">推荐</span>
             </td>
           </tr>
           </tbody>

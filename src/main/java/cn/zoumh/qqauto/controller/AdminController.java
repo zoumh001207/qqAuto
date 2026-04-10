@@ -23,6 +23,7 @@ public class AdminController
     public String index(Model model)
     {
         model.addAttribute("users", portalService.allUsers());
+        model.addAttribute("enabledUserCount", portalService.enabledUserCount());
         model.addAttribute("products", portalService.allProducts());
         model.addAttribute("orders", portalService.allOrders());
         model.addAttribute("recharges", portalService.allRechargeRequests());
@@ -31,6 +32,10 @@ public class AdminController
         model.addAttribute("qqAccounts", portalService.allQqAccounts());
         model.addAttribute("totalTaskExecutions", portalService.totalTaskExecutionCount());
         model.addAttribute("completedTaskExecutions", portalService.completedTaskExecutionCount());
+        model.addAttribute("totalPaidAmount", portalService.totalPaidOrderAmount());
+        model.addAttribute("pendingRechargeCount", portalService.pendingRechargeCount());
+        model.addAttribute("pendingWithdrawCount", portalService.pendingWithdrawCount());
+        model.addAttribute("totalUserBalance", portalService.totalUserBalance());
         return "admin/index";
     }
 
@@ -108,6 +113,21 @@ public class AdminController
     {
         portalService.sendSiteMessage(userId, title, content);
         redirectAttributes.addFlashAttribute("success", "站内消息已发送。");
+        return "redirect:/admin";
+    }
+
+    @PostMapping("/admin/user/{id}/toggle")
+    public String toggleUser(@PathVariable Long id, RedirectAttributes redirectAttributes)
+    {
+        try
+        {
+            portalService.toggleUserEnabled(id);
+            redirectAttributes.addFlashAttribute("success", "用户状态已更新。");
+        }
+        catch (IllegalArgumentException ex)
+        {
+            redirectAttributes.addFlashAttribute("error", ex.getMessage());
+        }
         return "redirect:/admin";
     }
 }

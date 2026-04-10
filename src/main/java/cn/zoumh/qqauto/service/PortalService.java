@@ -75,6 +75,14 @@ public class PortalService
         return siteMessageRepository.findTop10ByUserOrderByCreatedAtDesc(user);
     }
 
+    @Transactional
+    public void markMessagesRead(UserAccount user)
+    {
+        siteMessageRepository.findTop10ByUserOrderByCreatedAtDesc(user).stream()
+            .filter(item -> !item.isReadFlag())
+            .forEach(item -> item.setReadFlag(true));
+    }
+
     public List<PurchaseOrder> orders(UserAccount user)
     {
         return purchaseOrderRepository.findTop20ByUserOrderByCreatedAtDesc(user);
@@ -319,6 +327,11 @@ public class PortalService
         return userAccountRepository.findAll();
     }
 
+    public long enabledUserCount()
+    {
+        return allUsers().stream().filter(UserAccount::isEnabled).count();
+    }
+
     public List<Product> allProducts()
     {
         return productRepository.findAll();
@@ -363,6 +376,35 @@ public class PortalService
             .count();
     }
 
+    public BigDecimal totalPaidOrderAmount()
+    {
+        return allOrders().stream()
+            .filter(item -> item.getStatus() == OrderStatus.PAID || item.getStatus() == OrderStatus.COMPLETED)
+            .map(PurchaseOrder::getAmount)
+            .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+
+    public long pendingRechargeCount()
+    {
+        return allRechargeRequests().stream()
+            .filter(item -> item.getStatus() == RequestStatus.PENDING)
+            .count();
+    }
+
+    public long pendingWithdrawCount()
+    {
+        return allWithdrawRequests().stream()
+            .filter(item -> item.getStatus() == RequestStatus.PENDING)
+            .count();
+    }
+
+    public BigDecimal totalUserBalance()
+    {
+        return allUsers().stream()
+            .map(UserAccount::getBalance)
+            .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+
     @Transactional
     public void approveOrder(Long orderId)
     {
@@ -385,6 +427,20 @@ public class PortalService
     {
         UserAccount user = userAccountRepository.findById(userId).orElseThrow();
         siteMessageRepository.save(newMessage(user, title, content));
+    }
+
+    @Transactional
+    public void toggleUserEnabled(Long userId)
+    {
+        UserAccount user = userAccountRepository.findById(userId).orElseThrow();
+        if (user.getRole() == RoleType.ADMIN)
+        {
+            throw new IllegalArgumentException("绠＄悊鍛樿处鍙蜂笉鍏佽鍦ㄨ繖閲屽仠鐢?");
+        }
+        user.setEnabled(!user.isEnabled());
+        siteMessageRepository.save(newMessage(user,
+            user.isEnabled() ? "璐﹀彿宸叉仮澶?" : "璐﹀彿宸叉殏鍋?",
+            user.isEnabled() ? "浣犵殑骞冲彴璐﹀彿宸叉仮澶嶆甯镐娇鐢ㄣ€?" : "浣犵殑骞冲彴璐﹀彿宸茶鍚庡彴鏆傛椂鍋滅敤銆?"));
     }
 
     @Transactional

@@ -118,6 +118,7 @@ public class UserController
     public String messages(Authentication authentication, Model model)
     {
         UserAccount user = portalService.currentUser(authentication.getName());
+        portalService.markMessagesRead(user);
         model.addAttribute("currentUser", user);
         model.addAttribute("messages", portalService.messages(user));
         return "user/messages";
