@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>消息</title><link rel="stylesheet" th:href="@{/css/app.css}"></head>
+<body>
+<div class="shell">
+  <div class="nav"><a th:href="@{/user/dashboard}">首页</a><a th:href="@{/user/orders}">订单</a><a th:href="@{/user/wallet}">钱包</a><a th:href="@{/user/messages}">消息</a><a th:href="@{/user/profile}">我的</a></div>
+  <div class="card">
+    <h3>站内消息</h3>
+    <div th:each="item : ${messages}" class="space-top"><strong th:text="${item.title}"></strong><div class="muted" th:text="${item.content}"></div><div class="muted" th:text="${#temporals.format(item.createdAt, 'yyyy-MM-dd HH:mm')}"></div></div>
+  </div>
+</div>
+</body>
+</html>

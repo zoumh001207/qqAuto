@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>订单</title><link rel="stylesheet" th:href="@{/css/app.css}"></head>
+<body>
+<div class="shell">
+  <div class="nav"><a th:href="@{/user/dashboard}">首页</a><a th:href="@{/user/orders}">订单</a><a th:href="@{/user/wallet}">钱包</a><a th:href="@{/user/messages}">消息</a><a th:href="@{/user/profile}">我的</a></div>
+  <div th:replace="~{fragments/flash :: flash}"></div>
+  <div class="grid grid-2">
+    <div class="card">
+      <h3>创建订单</h3>
+      <form method="post" th:action="@{/user/orders}">
+        <label>商品</label><select name="productId"><option th:each="item : ${products}" th:value="${item.id}" th:text="${item.name + ' - ￥' + item.price}"></option></select>
+        <label>下单QQ</label><input type="text" name="targetQq" th:value="${currentUser.qqNumber}">
+        <label>支付方式</label><select name="paymentMethod"><option value="BALANCE">余额支付</option><option value="MANUAL">人工收款</option></select>
+        <button class="btn-primary" type="submit">提交订单</button>
+      </form>
+    </div>
+    <div class="card">
+      <h3>订单列表</h3>
+      <table><thead><tr><th>ID</th><th>商品</th><th>金额</th><th>状态</th><th>备注</th></tr></thead><tbody><tr th:each="item : ${orders}"><td th:text="${item.id}"></td><td th:text="${item.product.name}"></td><td th:text="${item.amount}"></td><td th:text="${item.status}"></td><td th:text="${item.notes}"></td></tr></tbody></table>
+    </div>
+  </div>
+</div>
+</body>
+</html>

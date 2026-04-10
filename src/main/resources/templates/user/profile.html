@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>我的</title><link rel="stylesheet" th:href="@{/css/app.css}"></head>
+<body>
+<div class="shell">
+  <div class="nav"><a th:href="@{/user/dashboard}">首页</a><a th:href="@{/user/orders}">订单</a><a th:href="@{/user/wallet}">钱包</a><a th:href="@{/user/messages}">消息</a><a th:href="@{/user/profile}">我的</a></div>
+  <div th:replace="~{fragments/flash :: flash}"></div>
+  <div class="card">
+    <h3>个人资料</h3>
+    <form method="post" th:action="@{/user/profile}">
+      <label>显示名称</label><input type="text" name="displayName" th:value="${currentUser.displayName}">
+      <label>QQ号</label><input type="text" name="qq" th:value="${currentUser.qqNumber}">
+      <label>邮箱</label><input type="email" name="email" th:value="${currentUser.email}">
+      <button class="btn-primary" type="submit">保存资料</button>
+    </form>
+  </div>
+</div>
+</body>
+</html>

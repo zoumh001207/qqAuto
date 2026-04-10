@@ -1,0 +1,13 @@
+server.port=${SERVER_PORT:8086}
+
+spring.datasource.url=${SPRING_DATASOURCE_URL:jdbc:mysql://127.0.0.1:3306/qqauto?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai}
+spring.datasource.username=${SPRING_DATASOURCE_USERNAME:root}
+spring.datasource.password=${SPRING_DATASOURCE_PASSWORD:change-me}
+spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
+
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.open-in-view=true
+spring.jpa.show-sql=false
+
+spring.thymeleaf.cache=true
+spring.h2.console.enabled=false

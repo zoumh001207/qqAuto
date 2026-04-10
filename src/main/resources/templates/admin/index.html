@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>后台管理</title><link rel="stylesheet" th:href="@{/css/app.css}"></head>
+<body>
+<div class="shell">
+  <div class="nav"><a th:href="@{/admin}">后台首页</a><a th:href="@{/user/dashboard}">返回前台</a></div>
+  <div th:replace="~{fragments/flash :: flash}"></div>
+  <div class="grid grid-3"><div class="card"><h3>用户数</h3><p th:text="${users.size()}"></p></div><div class="card"><h3>商品数</h3><p th:text="${products.size()}"></p></div><div class="card"><h3>订单数</h3><p th:text="${orders.size()}"></p></div></div>
+  <div class="grid grid-2 space-top">
+    <div class="card">
+      <h3>新增公告</h3>
+      <form method="post" th:action="@{/admin/announcement}">
+        <label>标题</label><input type="text" name="title">
+        <label>内容</label><textarea name="content"></textarea>
+        <label><input type="checkbox" name="published" value="true" checked style="width:auto;"> 发布</label>
+        <label><input type="checkbox" name="pinned" value="true" style="width:auto;"> 置顶</label>
+        <button class="btn-primary" type="submit">保存公告</button>
+      </form>
+    </div>
+    <div class="card">
+      <h3>新增商品</h3>
+      <form method="post" th:action="@{/admin/product}">
+        <label>名称</label><input type="text" name="name">
+        <label>分类</label><input type="text" name="category">
+        <label>版本标签</label><input type="text" name="versionTag" placeholder="dg / qzone / agent">
+        <label>摘要</label><textarea name="summary"></textarea>
+        <label>价格</label><input type="number" step="0.01" name="price">
+        <label>时长(天)</label><input type="number" name="durationDays">
+        <label><input type="checkbox" name="active" value="true" checked style="width:auto;"> 启用</label>
+        <label><input type="checkbox" name="featured" value="true" style="width:auto;"> 推荐</label>
+        <button class="btn-secondary" type="submit">保存商品</button>
+      </form>
+    </div>
+  </div>
+  <div class="card space-top">
+    <h3>发送站内消息</h3>
+    <form method="post" th:action="@{/admin/message}">
+      <label>目标用户</label>
+      <select name="userId">
+        <option th:each="item : ${users}" th:value="${item.id}" th:text="${item.username + ' / ' + item.qqNumber}"></option>
+      </select>
+      <label>标题</label>
+      <input type="text" name="title">
+      <label>内容</label>
+      <textarea name="content"></textarea>
+      <button class="btn-primary" type="submit">发送消息</button>
+    </form>
+  </div>
+  <div class="card space-top">
+    <h3>充值审核</h3>
+    <table><thead><tr><th>ID</th><th>用户</th><th>金额</th><th>渠道</th><th>状态</th><th>操作</th></tr></thead><tbody><tr th:each="item : ${recharges}"><td th:text="${item.id}"></td><td th:text="${item.user.username}"></td><td th:text="${item.amount}"></td><td th:text="${item.channel}"></td><td th:text="${item.status}"></td><td><form th:if="${item.status.name() == 'PENDING'}" th:action="@{'/admin/recharge/' + ${item.id} + '/approve'}" method="post"><button class="btn-soft" type="submit">通过</button></form></td></tr></tbody></table>
+  </div>
+  <div class="card space-top">
+    <h3>提现审核</h3>
+    <table><thead><tr><th>ID</th><th>用户</th><th>金额</th><th>渠道</th><th>状态</th><th>操作</th></tr></thead><tbody><tr th:each="item : ${withdrawals}"><td th:text="${item.id}"></td><td th:text="${item.user.username}"></td><td th:text="${item.amount}"></td><td th:text="${item.channel}"></td><td th:text="${item.status}"></td><td><form th:if="${item.status.name() == 'PENDING'}" th:action="@{'/admin/withdraw/' + ${item.id} + '/approve'}" method="post"><button class="btn-soft" type="submit">通过</button></form></td></tr></tbody></table>
+  </div>
+  <div class="grid grid-2 space-top">
+    <div class="card"><h3>用户列表</h3><table><thead><tr><th>用户</th><th>QQ</th><th>级别</th><th>余额</th></tr></thead><tbody><tr th:each="item : ${users}"><td th:text="${item.username}"></td><td th:text="${item.qqNumber}"></td><td th:text="${item.agentLevel}"></td><td th:text="${item.balance}"></td></tr></tbody></table></div>
+    <div class="card"><h3>订单列表</h3><table><thead><tr><th>ID</th><th>用户</th><th>商品</th><th>金额</th><th>状态</th><th>操作</th></tr></thead><tbody><tr th:each="item : ${orders}"><td th:text="${item.id}"></td><td th:text="${item.user.username}"></td><td th:text="${item.product.name}"></td><td th:text="${item.amount}"></td><td th:text="${item.status}"></td><td><form th:if="${item.status.name() != 'COMPLETED'}" th:action="@{'/admin/order/' + ${item.id} + '/approve'}" method="post"><button class="btn-soft" type="submit">确认</button></form></td></tr></tbody></table></div>
+  </div>
+</div>
+</body>
+</html>

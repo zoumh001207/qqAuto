@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>用户中心</title><link rel="stylesheet" th:href="@{/css/app.css}"></head>
+<body>
+<div class="shell">
+  <div class="nav">
+    <a th:href="@{/user/dashboard}">首页</a><a th:href="@{/user/orders}">订单</a><a th:href="@{/user/wallet}">钱包</a><a th:href="@{/user/messages}">消息</a><a th:href="@{/user/profile}">我的</a><a th:if="${currentUser.role.name() == 'ADMIN'}" th:href="@{/admin}">后台</a><a th:href="@{/logout}">退出</a>
+  </div>
+  <div th:replace="~{fragments/flash :: flash}"></div>
+  <div class="grid grid-2 space-top">
+    <div class="card hero">
+      <div class="pill" th:text="${currentUser.agentLevel}"></div>
+      <h2 th:text="${currentUser.displayName}"></h2>
+      <p>QQ：<span th:text="${currentUser.qqNumber}"></span></p>
+      <p>余额：<span th:text="${currentUser.balance}"></span> 元</p>
+      <p>未读消息：<span th:text="${unreadCount}"></span></p>
+    </div>
+    <div class="card">
+      <h3>站点公告</h3>
+      <div th:each="item : ${announcements}" class="space-top"><div class="pill" th:if="${item.pinned}">置顶</div><h4 th:text="${item.title}"></h4><p class="muted" th:text="${item.content}"></p></div>
+    </div>
+  </div>
+  <div class="grid grid-2 space-top">
+    <div class="card">
+      <h3>商品套餐</h3>
+      <div th:each="item : ${products}" class="space-top"><strong th:text="${item.name}"></strong><div class="muted" th:text="${item.summary}"></div><div th:text="'￥' + ${item.price} + ' / ' + ${item.durationDays} + '天'"></div></div>
+    </div>
+    <div class="card">
+      <h3>最近消息</h3>
+      <div th:each="item : ${messages}" class="space-top"><strong th:text="${item.title}"></strong><div class="muted" th:text="${item.content}"></div></div>
+    </div>
+  </div>
+  <div class="card space-top">
+    <h3>最近订单</h3>
+    <table><thead><tr><th>ID</th><th>商品</th><th>QQ</th><th>金额</th><th>状态</th></tr></thead><tbody><tr th:each="item : ${orders}"><td th:text="${item.id}"></td><td th:text="${item.product.name}"></td><td th:text="${item.targetQq}"></td><td th:text="${item.amount}"></td><td th:text="${item.status}"></td></tr></tbody></table>
+  </div>
+</div>
+</body>
+</html>

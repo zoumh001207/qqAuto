@@ -1,0 +1,19 @@
+body{margin:0;font-family:"Segoe UI","PingFang SC",sans-serif;background:linear-gradient(135deg,#eef2ff 0%,#f8fafc 55%,#fef3c7 100%);color:#0f172a}
+a{text-decoration:none;color:inherit}
+.shell{max-width:1180px;margin:0 auto;padding:24px 16px 48px}
+.card{background:rgba(255,255,255,.92);border:1px solid rgba(226,232,240,.9);border-radius:20px;box-shadow:0 12px 30px rgba(15,23,42,.08);padding:20px}
+.grid{display:grid;gap:16px}
+.grid-2{grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
+.grid-3{grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+.hero{background:linear-gradient(135deg,#312e81,#7c3aed,#ec4899);color:#fff}
+.pill{display:inline-block;padding:4px 10px;border-radius:999px;background:#e0e7ff;color:#4338ca;font-size:12px}
+.btn,button{border:none;border-radius:12px;padding:10px 16px;cursor:pointer}
+.btn-primary{background:#4f46e5;color:#fff}
+.btn-secondary{background:#0f172a;color:#fff}
+.btn-soft{background:#eef2ff;color:#3730a3}
+input,select,textarea{width:100%;box-sizing:border-box;margin-top:6px;margin-bottom:12px;padding:12px 14px;border-radius:12px;border:1px solid #cbd5e1;background:#fff}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th,td{text-align:left;padding:10px 8px;border-bottom:1px solid #e2e8f0}
+.nav{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+.nav a{background:rgba(255,255,255,.88);padding:10px 14px;border-radius:12px}
+.muted{color:#64748b}.success{color:#166534}.error{color:#b91c1c}.space-top{margin-top:16px}

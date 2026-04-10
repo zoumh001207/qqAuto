@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>登录</title><link rel="stylesheet" th:href="@{/css/app.css}"></head>
+<body>
+<div class="shell" style="max-width:480px;padding-top:60px;">
+  <div class="card hero"><h1>QQ Auto 业务中心</h1><p>首版提供用户中心、商品购买、消息通知、充值提现申请和后台管理。</p></div>
+  <div class="space-top" th:replace="~{fragments/flash :: flash}"></div>
+  <div class="card space-top">
+    <form th:action="@{/login}" method="post">
+      <label>用户名</label><input type="text" name="username" required>
+      <label>密码</label><input type="password" name="password" required>
+      <button class="btn-primary" type="submit">登录</button>
+    </form>
+    <div class="space-top muted"><a th:href="@{/register}">注册账号</a> | <a th:href="@{/forgot-password}">找回密码</a></div>
+    <p class="space-top muted">管理员默认账号：admin / zmh0012078070</p>
+  </div>
+</div>
+</body>
+</html>

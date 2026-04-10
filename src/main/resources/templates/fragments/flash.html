@@ -1,0 +1,4 @@
+<div th:fragment="flash">
+  <div th:if="${success}" class="card success" th:text="${success}"></div>
+  <div th:if="${error}" class="card error" th:text="${error}"></div>
+</div>
