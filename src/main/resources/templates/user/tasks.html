@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>任务列表</title>
+  <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+<div class="topbar">
+  <div class="topbar-inner">
+    <div class="brand">
+      <div class="brand-logo">M</div>
+      <div>莫言加速<small>任务开关与执行状态</small></div>
+    </div>
+    <div class="nav-links">
+      <a th:href="@{/user/dashboard}">首页</a>
+      <a class="active" th:href="@{/user/tasks}">代挂任务</a>
+      <a th:href="@{/user/orders}">购买套餐</a>
+      <a th:href="@{/user/profile}">我的资料</a>
+    </div>
+  </div>
+</div>
+
+<div class="shell">
+  <div th:replace="~{fragments/flash :: flash}"></div>
+
+  <div class="card" th:if="${selectedAccount != null}">
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;">
+      <div>
+        <h2 th:text="${selectedAccount.qqNumber + ' · 项目列表'}"></h2>
+        <div class="muted" th:text="${selectedAccount.packageName + ' · 到期 ' + #temporals.format(selectedAccount.expireAt, 'yyyy-MM-dd HH:mm')}"></div>
+      </div>
+      <div class="task-actions">
+        <form class="switch-form" method="post" th:action="@{'/user/tasks/' + ${selectedAccount.id} + '/run-all'}">
+          <button class="btn-primary" type="submit">一键补挂</button>
+        </form>
+        <form class="switch-form" method="post" th:action="@{'/user/tasks/' + ${selectedAccount.id} + '/refresh'}">
+          <button class="btn-soft" type="submit">刷新</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="page-grid grid-2 space-top">
+    <div class="card">
+      <h3>我的账号</h3>
+      <div th:if="${#lists.isEmpty(qqAccounts)}" class="muted">暂无账号，请先回首页添加。</div>
+      <div th:each="item : ${qqAccounts}" class="qq-card">
+        <div class="qq-avatar">Q</div>
+        <div class="qq-main">
+          <div class="qq-title" th:text="${item.qqNumber}"></div>
+          <div class="muted" th:text="${item.nickname + ' · ' + item.packageName}"></div>
+        </div>
+        <a class="btn-soft" th:href="@{/user/tasks(accountId=${item.id})}">切换</a>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>任务状态</h3>
+      <div th:if="${selectedAccount == null}" class="muted">请选择一个 QQ 账号查看任务。</div>
+      <div th:each="item : ${taskPreferences}" class="task-item">
+        <div class="task-icon" th:text="${item.taskCatalog.icon}"></div>
+        <div class="task-main">
+          <div class="task-title" th:text="${item.taskCatalog.name}"></div>
+          <div class="muted" th:text="${item.taskCatalog.category + ' · ' + item.taskCatalog.difficultyTag}"></div>
+        </div>
+        <div class="task-actions">
+          <span class="tag success" th:if="${item.lastStatus.name() == 'DONE'}">已完成</span>
+          <span class="tag warning" th:if="${item.lastStatus.name() == 'PENDING'}">待执行</span>
+          <span class="tag danger" th:if="${item.lastStatus.name() == 'FAILED'}">失败</span>
+          <span class="tag primary" th:if="${item.lastStatus.name() == 'SKIPPED'}">已跳过</span>
+          <form class="switch-form" method="post" th:action="@{'/user/tasks/' + ${selectedAccount.id} + '/toggle/' + ${item.id}}">
+            <button class="switch-btn" th:classappend="${item.enabled} ? ' on' : ''" type="submit"></button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

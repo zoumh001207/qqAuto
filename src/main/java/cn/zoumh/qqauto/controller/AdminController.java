@@ -28,6 +28,9 @@ public class AdminController
         model.addAttribute("recharges", portalService.allRechargeRequests());
         model.addAttribute("withdrawals", portalService.allWithdrawRequests());
         model.addAttribute("announcements", portalService.allAnnouncements());
+        model.addAttribute("qqAccounts", portalService.allQqAccounts());
+        model.addAttribute("totalTaskExecutions", portalService.totalTaskExecutionCount());
+        model.addAttribute("completedTaskExecutions", portalService.completedTaskExecutionCount());
         return "admin/index";
     }
 
@@ -69,7 +72,7 @@ public class AdminController
         product.setActive(active);
         product.setFeatured(featured);
         portalService.saveProduct(product);
-        redirectAttributes.addFlashAttribute("success", "商品已保存。");
+        redirectAttributes.addFlashAttribute("success", "套餐已保存。");
         return "redirect:/admin";
     }
 

@@ -1,16 +1,32 @@
 <!DOCTYPE html>
 <html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>注册</title><link rel="stylesheet" th:href="@{/css/app.css}"></head>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>注册</title>
+  <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
 <body>
-<div class="shell" style="max-width:540px;padding-top:40px;">
-  <div class="card">
+<div class="auth-shell">
+  <div class="auth-card">
+    <div class="auth-brand">
+      <div class="auth-logo">M</div>
+      <div>
+        <strong>莫言加速</strong>
+        <div class="muted">创建你的自用账号</div>
+      </div>
+    </div>
     <h1>注册账号</h1>
     <div th:replace="~{fragments/flash :: flash}"></div>
     <form th:action="@{/register}" method="post">
-      <label>用户名</label><input type="text" name="username" required>
-      <label>密码</label><input type="password" name="password" required>
-      <label>QQ号</label><input type="text" name="qq" required>
-      <label>邮箱</label><input type="email" name="email">
+      <label>用户名</label>
+      <input type="text" name="username" required>
+      <label>密码</label>
+      <input type="password" name="password" required>
+      <label>QQ号</label>
+      <input type="text" name="qq" required>
+      <label>邮箱</label>
+      <input type="email" name="email">
       <button class="btn-primary" type="submit">立即注册</button>
     </form>
     <p class="muted"><a th:href="@{/login}">返回登录</a></p>

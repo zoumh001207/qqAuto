@@ -1,18 +1,54 @@
 <!DOCTYPE html>
 <html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>我的</title><link rel="stylesheet" th:href="@{/css/app.css}"></head>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>我的资料</title>
+  <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
 <body>
+<div class="topbar">
+  <div class="topbar-inner">
+    <div class="brand">
+      <div class="brand-logo">M</div>
+      <div>莫言加速<small>个人资料</small></div>
+    </div>
+    <div class="nav-links">
+      <a th:href="@{/user/dashboard}">首页</a>
+      <a th:href="@{/user/tasks}">代挂任务</a>
+      <a th:href="@{/user/orders}">购买套餐</a>
+      <a th:href="@{/user/messages}">站内消息</a>
+      <a class="active" th:href="@{/user/profile}">我的资料</a>
+    </div>
+  </div>
+</div>
+
 <div class="shell">
-  <div class="nav"><a th:href="@{/user/dashboard}">首页</a><a th:href="@{/user/orders}">订单</a><a th:href="@{/user/wallet}">钱包</a><a th:href="@{/user/messages}">消息</a><a th:href="@{/user/profile}">我的</a></div>
   <div th:replace="~{fragments/flash :: flash}"></div>
-  <div class="card">
-    <h3>个人资料</h3>
-    <form method="post" th:action="@{/user/profile}">
-      <label>显示名称</label><input type="text" name="displayName" th:value="${currentUser.displayName}">
-      <label>QQ号</label><input type="text" name="qq" th:value="${currentUser.qqNumber}">
-      <label>邮箱</label><input type="email" name="email" th:value="${currentUser.email}">
-      <button class="btn-primary" type="submit">保存资料</button>
-    </form>
+  <div class="page-grid grid-2">
+    <div class="card">
+      <h2>个人资料</h2>
+      <form method="post" th:action="@{/user/profile}">
+        <label>显示名称</label>
+        <input type="text" name="displayName" th:value="${currentUser.displayName}">
+        <label>QQ号</label>
+        <input type="text" name="qq" th:value="${currentUser.qqNumber}">
+        <label>邮箱</label>
+        <input type="email" name="email" th:value="${currentUser.email}">
+        <button class="btn-primary" type="submit">保存资料</button>
+      </form>
+    </div>
+    <div class="card">
+      <h2>已接入账号</h2>
+      <div th:if="${#lists.isEmpty(qqAccounts)}" class="muted">还没有接入 QQ 账号。</div>
+      <div th:each="item : ${qqAccounts}" class="qq-card">
+        <div class="qq-avatar">Q</div>
+        <div class="qq-main">
+          <div class="qq-title" th:text="${item.qqNumber}"></div>
+          <div class="muted" th:text="${item.packageName}"></div>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 </body>

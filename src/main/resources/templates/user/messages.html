@@ -1,12 +1,38 @@
 <!DOCTYPE html>
 <html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>消息</title><link rel="stylesheet" th:href="@{/css/app.css}"></head>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>站内消息</title>
+  <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
 <body>
+<div class="topbar">
+  <div class="topbar-inner">
+    <div class="brand">
+      <div class="brand-logo">M</div>
+      <div>莫言加速<small>站内通知</small></div>
+    </div>
+    <div class="nav-links">
+      <a th:href="@{/user/dashboard}">首页</a>
+      <a th:href="@{/user/tasks}">代挂任务</a>
+      <a th:href="@{/user/orders}">购买套餐</a>
+      <a class="active" th:href="@{/user/messages}">站内消息</a>
+      <a th:href="@{/user/profile}">我的资料</a>
+    </div>
+  </div>
+</div>
+
 <div class="shell">
-  <div class="nav"><a th:href="@{/user/dashboard}">首页</a><a th:href="@{/user/orders}">订单</a><a th:href="@{/user/wallet}">钱包</a><a th:href="@{/user/messages}">消息</a><a th:href="@{/user/profile}">我的</a></div>
   <div class="card">
-    <h3>站内消息</h3>
-    <div th:each="item : ${messages}" class="space-top"><strong th:text="${item.title}"></strong><div class="muted" th:text="${item.content}"></div><div class="muted" th:text="${#temporals.format(item.createdAt, 'yyyy-MM-dd HH:mm')}"></div></div>
+    <h2>站内消息</h2>
+    <div th:each="item : ${messages}" class="message-item">
+      <div style="display:flex;justify-content:space-between;gap:12px;">
+        <strong th:text="${item.title}"></strong>
+        <span class="muted" th:text="${#temporals.format(item.createdAt, 'yyyy-MM-dd HH:mm')}"></span>
+      </div>
+      <div class="muted" th:text="${item.content}"></div>
+    </div>
   </div>
 </div>
 </body>

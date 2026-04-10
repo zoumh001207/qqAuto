@@ -1,24 +1,84 @@
 <!DOCTYPE html>
 <html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>订单</title><link rel="stylesheet" th:href="@{/css/app.css}"></head>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>购买套餐</title>
+  <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
 <body>
+<div class="topbar">
+  <div class="topbar-inner">
+    <div class="brand">
+      <div class="brand-logo">M</div>
+      <div>莫言加速<small>套餐购买与订单记录</small></div>
+    </div>
+    <div class="nav-links">
+      <a th:href="@{/user/dashboard}">首页</a>
+      <a th:href="@{/user/tasks}">代挂任务</a>
+      <a class="active" th:href="@{/user/orders}">购买套餐</a>
+      <a th:href="@{/user/profile}">我的资料</a>
+    </div>
+  </div>
+</div>
+
 <div class="shell">
-  <div class="nav"><a th:href="@{/user/dashboard}">首页</a><a th:href="@{/user/orders}">订单</a><a th:href="@{/user/wallet}">钱包</a><a th:href="@{/user/messages}">消息</a><a th:href="@{/user/profile}">我的</a></div>
   <div th:replace="~{fragments/flash :: flash}"></div>
-  <div class="grid grid-2">
-    <div class="card">
-      <h3>创建订单</h3>
+
+  <div class="card">
+    <h2>选择你的套餐</h2>
+    <p class="muted">自用版不接支付网关，提交订单后由后台人工确认；如果余额足够，也支持直接余额支付。</p>
+  </div>
+
+  <div class="package-grid space-top">
+    <div class="card package-card" th:each="item : ${products}" th:classappend="${item.featured} ? ' featured' : ''">
+      <div class="tag primary" th:text="${item.category}"></div>
+      <h3 th:text="${item.name}"></h3>
+      <div class="package-price" th:text="'¥' + ${item.price}"><small>/月</small></div>
+      <div class="muted" th:text="${item.summary}"></div>
+      <ul class="package-list">
+        <li th:text="${item.durationDays} + ' 天服务时长'"></li>
+        <li>支持自动任务与后台监控</li>
+        <li>支持账号到期与状态查看</li>
+      </ul>
       <form method="post" th:action="@{/user/orders}">
-        <label>商品</label><select name="productId"><option th:each="item : ${products}" th:value="${item.id}" th:text="${item.name + ' - ￥' + item.price}"></option></select>
-        <label>下单QQ</label><input type="text" name="targetQq" th:value="${currentUser.qqNumber}">
-        <label>支付方式</label><select name="paymentMethod"><option value="BALANCE">余额支付</option><option value="MANUAL">人工收款</option></select>
-        <button class="btn-primary" type="submit">提交订单</button>
+        <input type="hidden" name="productId" th:value="${item.id}">
+        <input type="text" name="targetQq" th:value="${currentUser.qqNumber}" placeholder="下单QQ">
+        <select name="paymentMethod">
+          <option value="BALANCE">余额支付</option>
+          <option value="MANUAL">人工确认</option>
+        </select>
+        <button class="btn-primary" type="submit">立即下单</button>
       </form>
     </div>
-    <div class="card">
-      <h3>订单列表</h3>
-      <table><thead><tr><th>ID</th><th>商品</th><th>金额</th><th>状态</th><th>备注</th></tr></thead><tbody><tr th:each="item : ${orders}"><td th:text="${item.id}"></td><td th:text="${item.product.name}"></td><td th:text="${item.amount}"></td><td th:text="${item.status}"></td><td th:text="${item.notes}"></td></tr></tbody></table>
+  </div>
+
+  <div class="table-card space-top">
+    <div class="table-header">
+      <h3>订单记录</h3>
     </div>
+    <table>
+      <thead>
+      <tr>
+        <th>ID</th>
+        <th>套餐</th>
+        <th>QQ</th>
+        <th>金额</th>
+        <th>状态</th>
+        <th>备注</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr th:each="item : ${orders}">
+        <td th:text="${item.id}"></td>
+        <td th:text="${item.product.name}"></td>
+        <td th:text="${item.targetQq}"></td>
+        <td th:text="${item.amount}"></td>
+        <td th:text="${item.status}"></td>
+        <td th:text="${item.notes}"></td>
+      </tr>
+      </tbody>
+    </table>
   </div>
 </div>
 </body>
