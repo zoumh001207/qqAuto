@@ -11,7 +11,10 @@
   <div class="topbar-inner">
     <div class="brand">
       <div class="brand-logo">M</div>
-      <div>莫言加速<small>站内通知</small></div>
+      <div class="brand-copy">
+        <span>墨言加速</span>
+        <small>站内通知</small>
+      </div>
     </div>
     <div class="nav-links">
       <a th:href="@{/user/dashboard}">首页</a>
@@ -25,14 +28,23 @@
 
 <div class="shell">
   <div class="card">
-    <h2>站内消息</h2>
-    <div th:each="item : ${messages}" class="message-item">
-      <div style="display:flex;justify-content:space-between;gap:12px;">
-        <strong th:text="${item.title}"></strong>
-        <span class="muted" th:text="${#temporals.format(item.createdAt, 'yyyy-MM-dd HH:mm')}"></span>
+    <div class="section-head">
+      <div>
+        <div class="section-title">站内消息</div>
+        <div class="muted">订单审核、系统通知、后台回执都会集中在这里。</div>
       </div>
-      <div class="muted" th:text="${item.content}"></div>
+      <span class="tag primary" th:text="${#lists.size(messages)} + ' 条'"></span>
     </div>
+    <div class="message-list" th:if="${!#lists.isEmpty(messages)}">
+      <div th:each="item : ${messages}" class="message-item">
+        <div style="display:flex;justify-content:space-between;gap:12px;">
+          <strong th:text="${item.title}"></strong>
+          <span class="muted" th:text="${#temporals.format(item.createdAt, 'yyyy-MM-dd HH:mm')}"></span>
+        </div>
+        <div class="muted" style="margin-top:6px;" th:text="${item.content}"></div>
+      </div>
+    </div>
+    <div class="empty-state" th:if="${#lists.isEmpty(messages)}">暂无站内消息</div>
   </div>
 </div>
 </body>

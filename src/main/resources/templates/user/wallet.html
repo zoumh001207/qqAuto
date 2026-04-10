@@ -11,7 +11,10 @@
   <div class="topbar-inner">
     <div class="brand">
       <div class="brand-logo">M</div>
-      <div>莫言加速<small>余额与申请</small></div>
+      <div class="brand-copy">
+        <span>墨言加速</span>
+        <small>余额与申请</small>
+      </div>
     </div>
     <div class="nav-links">
       <a th:href="@{/user/dashboard}">首页</a>
@@ -25,9 +28,16 @@
 
 <div class="shell">
   <div th:replace="~{fragments/flash :: flash}"></div>
+
   <div class="page-grid grid-2">
     <div class="card">
-      <h2 th:text="'当前余额 ¥' + ${currentUser.balance}"></h2>
+      <div class="section-head">
+        <div>
+          <div class="section-title" th:text="'当前余额 ¥' + ${currentUser.balance}"></div>
+          <div class="muted">充值和提现都走人工审核。</div>
+        </div>
+        <span class="tag primary">钱包中心</span>
+      </div>
       <form method="post" th:action="@{/user/recharge}">
         <label>充值金额</label>
         <input type="number" step="0.01" name="amount">
@@ -43,8 +53,12 @@
         <button class="btn-primary" type="submit">提交充值申请</button>
       </form>
     </div>
+
     <div class="card">
-      <h2>提现申请</h2>
+      <div class="section-head">
+        <div class="section-title">提现申请</div>
+        <span class="tag accent">人工审核</span>
+      </div>
       <form method="post" th:action="@{/user/withdraw}">
         <label>提现金额</label>
         <input type="number" step="0.01" name="amount">
@@ -63,27 +77,42 @@
 
   <div class="page-grid grid-2 space-top">
     <div class="table-card">
-      <div class="table-header"><h3>充值记录</h3></div>
+      <div class="table-header">
+        <h3 style="margin:0;">充值记录</h3>
+      </div>
       <table>
-        <thead><tr><th>ID</th><th>金额</th><th>渠道</th><th>状态</th></tr></thead>
+        <thead>
+        <tr><th>ID</th><th>金额</th><th>渠道</th><th>状态</th></tr>
+        </thead>
         <tbody>
+        <tr th:if="${#lists.isEmpty(recharges)}">
+          <td colspan="4"><div class="empty-state">暂无充值申请</div></td>
+        </tr>
         <tr th:each="item : ${recharges}">
           <td th:text="${item.id}"></td>
-          <td th:text="${item.amount}"></td>
+          <td th:text="'¥' + ${item.amount}"></td>
           <td th:text="${item.channel}"></td>
           <td th:text="${item.status}"></td>
         </tr>
         </tbody>
       </table>
     </div>
+
     <div class="table-card">
-      <div class="table-header"><h3>提现记录</h3></div>
+      <div class="table-header">
+        <h3 style="margin:0;">提现记录</h3>
+      </div>
       <table>
-        <thead><tr><th>ID</th><th>金额</th><th>渠道</th><th>状态</th></tr></thead>
+        <thead>
+        <tr><th>ID</th><th>金额</th><th>渠道</th><th>状态</th></tr>
+        </thead>
         <tbody>
+        <tr th:if="${#lists.isEmpty(withdrawals)}">
+          <td colspan="4"><div class="empty-state">暂无提现申请</div></td>
+        </tr>
         <tr th:each="item : ${withdrawals}">
           <td th:text="${item.id}"></td>
-          <td th:text="${item.amount}"></td>
+          <td th:text="'¥' + ${item.amount}"></td>
           <td th:text="${item.channel}"></td>
           <td th:text="${item.status}"></td>
         </tr>

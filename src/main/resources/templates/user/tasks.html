@@ -11,13 +11,20 @@
   <div class="topbar-inner">
     <div class="brand">
       <div class="brand-logo">M</div>
-      <div>莫言加速<small>任务开关与执行状态</small></div>
+      <div class="brand-copy">
+        <span>墨言加速</span>
+        <small>任务开关与执行状态</small>
+      </div>
     </div>
     <div class="nav-links">
       <a th:href="@{/user/dashboard}">首页</a>
       <a class="active" th:href="@{/user/tasks}">代挂任务</a>
       <a th:href="@{/user/orders}">购买套餐</a>
+      <a th:href="@{/user/messages}">站内消息</a>
       <a th:href="@{/user/profile}">我的资料</a>
+    </div>
+    <div class="topbar-right">
+      <div class="balance-chip" th:text="'余额 ¥' + ${currentUser.balance}"></div>
     </div>
   </div>
 </div>
@@ -25,45 +32,84 @@
 <div class="shell">
   <div th:replace="~{fragments/flash :: flash}"></div>
 
-  <div class="card" th:if="${selectedAccount != null}">
-    <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;">
-      <div>
-        <h2 th:text="${selectedAccount.qqNumber + ' · 项目列表'}"></h2>
-        <div class="muted" th:text="${selectedAccount.packageName + ' · 到期 ' + #temporals.format(selectedAccount.expireAt, 'yyyy-MM-dd HH:mm')}"></div>
+  <div class="page-grid grid-2">
+    <div class="card">
+      <div class="section-head">
+        <div class="section-title">我的账号</div>
+        <span class="tag primary" th:text="${#lists.size(qqAccounts)} + ' 个'"></span>
       </div>
-      <div class="task-actions">
-        <form class="switch-form" method="post" th:action="@{'/user/tasks/' + ${selectedAccount.id} + '/run-all'}">
-          <button class="btn-primary" type="submit">一键补挂</button>
-        </form>
-        <form class="switch-form" method="post" th:action="@{'/user/tasks/' + ${selectedAccount.id} + '/refresh'}">
-          <button class="btn-soft" type="submit">刷新</button>
-        </form>
+      <div th:if="${#lists.isEmpty(qqAccounts)}" class="empty-state">暂无账号，请先回首页添加 QQ。</div>
+      <div class="qq-list" th:if="${!#lists.isEmpty(qqAccounts)}">
+        <a th:each="item : ${qqAccounts}" class="qq-card" th:href="@{/user/tasks(accountId=${item.id})}">
+          <div class="qq-avatar round">Q</div>
+          <div class="qq-main">
+            <div class="qq-title" th:text="${item.qqNumber}"></div>
+            <div class="qq-meta">
+              <span class="tag primary" th:text="${item.packageName}"></span>
+              <span th:text="${item.nickname}"></span>
+            </div>
+          </div>
+          <div class="task-actions">
+            <span class="tag success" th:if="${item.status.name() == 'RUNNING'}">运行中</span>
+            <span class="tag warning" th:if="${item.status.name() == 'PENDING'}">待执行</span>
+            <span class="tag danger" th:if="${item.status.name() == 'ERROR' || item.status.name() == 'EXPIRED'}" th:text="${item.status.name()}"></span>
+            <span class="tag accent" th:if="${selectedAccount != null and item.id == selectedAccount.id}">当前</span>
+          </div>
+        </a>
       </div>
+    </div>
+
+    <div class="card" th:if="${selectedAccount != null}">
+      <div class="section-head">
+        <div>
+          <div class="section-title" th:text="${selectedAccount.qqNumber + ' / 项目列表'}"></div>
+          <div class="capsule-group space-top">
+            <span class="pill-stat" th:text="${selectedAccount.packageName}"></span>
+            <span class="pill-stat" th:text="'到期 ' + ${#temporals.format(selectedAccount.expireAt, 'yyyy-MM-dd HH:mm')}"></span>
+            <span class="pill-stat" th:text="'最近执行 ' + ${#temporals.format(selectedAccount.lastRunAt, 'yyyy-MM-dd HH:mm')}"></span>
+          </div>
+        </div>
+        <div class="inline-actions">
+          <form class="switch-form" method="post" th:action="@{'/user/tasks/' + ${selectedAccount.id} + '/run-all'}">
+            <button class="btn-primary" type="submit">一键补挂</button>
+          </form>
+          <form class="switch-form" method="post" th:action="@{'/user/tasks/' + ${selectedAccount.id} + '/refresh'}">
+            <button class="btn-soft" type="submit">刷新状态</button>
+          </form>
+        </div>
+      </div>
+      <div class="callout">
+        当前版本先按账号维度管理任务开关。禁用后状态会转为跳过，重新启用后恢复待执行。
+      </div>
+    </div>
+
+    <div class="card" th:if="${selectedAccount == null}">
+      <div class="empty-state">先从左侧选择一个 QQ 账号，再查看和调整任务。</div>
     </div>
   </div>
 
-  <div class="page-grid grid-2 space-top">
-    <div class="card">
-      <h3>我的账号</h3>
-      <div th:if="${#lists.isEmpty(qqAccounts)}" class="muted">暂无账号，请先回首页添加。</div>
-      <div th:each="item : ${qqAccounts}" class="qq-card">
-        <div class="qq-avatar">Q</div>
-        <div class="qq-main">
-          <div class="qq-title" th:text="${item.qqNumber}"></div>
-          <div class="muted" th:text="${item.nickname + ' · ' + item.packageName}"></div>
-        </div>
-        <a class="btn-soft" th:href="@{/user/tasks(accountId=${item.id})}">切换</a>
+  <div class="card space-top">
+    <div class="section-head">
+      <div class="section-title">任务状态</div>
+      <div class="capsule-group" th:if="${selectedAccount != null}">
+        <span class="tag success" th:text="${#lists.size(taskPreferences.?[lastStatus.name() == 'DONE'])} + ' 已完成'"></span>
+        <span class="tag warning" th:text="${#lists.size(taskPreferences.?[lastStatus.name() == 'PENDING'])} + ' 待执行'"></span>
+        <span class="tag danger" th:text="${#lists.size(taskPreferences.?[lastStatus.name() == 'FAILED'])} + ' 失败'"></span>
       </div>
     </div>
 
-    <div class="card">
-      <h3>任务状态</h3>
-      <div th:if="${selectedAccount == null}" class="muted">请选择一个 QQ 账号查看任务。</div>
+    <div th:if="${selectedAccount == null}" class="empty-state">暂无可展示的任务列表。</div>
+
+    <div class="task-list-view" th:if="${selectedAccount != null}">
       <div th:each="item : ${taskPreferences}" class="task-item">
         <div class="task-icon" th:text="${item.taskCatalog.icon}"></div>
         <div class="task-main">
           <div class="task-title" th:text="${item.taskCatalog.name}"></div>
-          <div class="muted" th:text="${item.taskCatalog.category + ' · ' + item.taskCatalog.difficultyTag}"></div>
+          <div class="task-meta">
+            <span class="tag primary" th:text="${item.taskCatalog.category}"></span>
+            <span th:text="${item.taskCatalog.difficultyTag}"></span>
+            <span th:text="'项目ID ' + ${item.taskCatalog.sortOrder}"></span>
+          </div>
         </div>
         <div class="task-actions">
           <span class="tag success" th:if="${item.lastStatus.name() == 'DONE'}">已完成</span>

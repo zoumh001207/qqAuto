@@ -11,7 +11,10 @@
   <div class="topbar-inner">
     <div class="brand">
       <div class="brand-logo">M</div>
-      <div>莫言加速<small>QQ 自动任务面板</small></div>
+      <div class="brand-copy">
+        <span>墨言加速</span>
+        <small>QQ 自动任务面板</small>
+      </div>
     </div>
     <div class="nav-links">
       <a class="active" th:href="@{/user/dashboard}">首页</a>
@@ -19,10 +22,12 @@
       <a th:href="@{/user/orders}">购买套餐</a>
       <a th:href="@{/user/messages}">站内消息</a>
       <a th:href="@{/user/profile}">我的资料</a>
+      <a th:href="@{/user/wallet}">钱包</a>
       <a th:if="${currentUser.role.name() == 'ADMIN'}" th:href="@{/admin}">管理后台</a>
       <a th:href="@{/logout}">退出</a>
     </div>
     <div class="topbar-right">
+      <div class="badge-chip" th:text="${currentUser.agentLevel}"></div>
       <div class="balance-chip" th:text="'余额 ¥' + ${currentUser.balance}"></div>
     </div>
   </div>
@@ -33,97 +38,186 @@
 
   <div class="page-grid grid-2">
     <div class="card hero-card">
-      <div class="tag primary" th:text="${currentUser.agentLevel}"></div>
-      <h1>全自动 QQ 任务托管</h1>
-      <p>围绕你提供的原型重构，当前首页展示账号状态、任务执行、公告和套餐入口，先把自用版主流程跑顺。</p>
-      <form method="post" th:action="@{/user/qq-accounts}">
-        <input type="text" name="qqNumber" placeholder="输入新的 QQ 号码">
-        <input type="password" name="qqPassword" placeholder="输入 QQ 密码">
-        <select name="productId">
-          <option th:each="item : ${products}" th:value="${item.id}" th:text="${item.name + ' / ¥' + item.price}"></option>
-        </select>
-        <button class="btn-primary" type="submit">立即接入</button>
-      </form>
-    </div>
-
-    <div class="page-grid">
-      <div class="card">
-        <h3>系统公告</h3>
-        <div class="notice-item" th:each="item : ${announcements}">
-          <div style="display:flex;justify-content:space-between;gap:12px;">
-            <strong th:text="${item.title}"></strong>
-            <span class="tag primary" th:if="${item.pinned}">置顶</span>
+      <span class="tag primary">自用稳定版</span>
+      <h1>全自动 QQ 任务托管，先把主流程跑顺</h1>
+      <p>当前版本优先保证账号接入、任务开关、套餐下单、后台审核这几条主链路稳定可用，再持续补细节和自动化能力。</p>
+      <div class="hero-actions">
+        <a class="btn-primary" th:href="@{/user/tasks}">进入任务列表</a>
+        <a class="btn-soft" th:href="@{/user/orders}">立即购买套餐</a>
+      </div>
+      <div class="hero-promo">
+        <div class="hero-promo-inner">
+          <div class="hero-promo-top">
+            QQ 等级加速
+            <div class="hero-promo-sub">全自动执行 · 每日刷新</div>
           </div>
-          <div class="muted" th:text="${item.content}"></div>
+          <div class="hero-promo-icons">
+            <span>Q</span>
+            <span>赞</span>
+            <span>签</span>
+          </div>
+          <div class="hero-promo-footer">一键接入新账号</div>
         </div>
       </div>
-      <div class="page-grid grid-3">
+    </div>
+
+    <div class="stack">
+      <div class="card">
+        <div class="notice-head">
+          <div class="section-title">
+            <span>公告</span>
+            <span class="tag primary" th:text="${#lists.size(announcements)}"></span>
+          </div>
+          <div class="muted">系统通知</div>
+        </div>
+        <div class="notice-list" th:if="${!#lists.isEmpty(announcements)}">
+          <div class="notice-item" th:each="item : ${announcements}">
+            <div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start;">
+              <div class="list-main">
+                <div class="list-title" th:text="${item.title}"></div>
+                <div class="list-meta">
+                  <span th:text="${item.content}"></span>
+                </div>
+              </div>
+              <span class="tag primary" th:if="${item.pinned}">置顶</span>
+            </div>
+          </div>
+        </div>
+        <div class="empty-state" th:if="${#lists.isEmpty(announcements)}">暂无公告</div>
+      </div>
+
+      <div class="stat-grid">
         <div class="card stat-card">
-          <div class="stat-label">已接入账号</div>
+          <div class="stat-label">接入账号</div>
           <div class="stat-value" th:text="${qqAccounts.size()}"></div>
+          <div class="stat-sub">已创建托管账号数</div>
         </div>
         <div class="card stat-card">
-          <div class="stat-label">运行中账号</div>
-          <div class="stat-value" th:text="${runningCount}"></div>
+          <div class="stat-label">运行中</div>
+          <div class="stat-value" style="color:var(--success);" th:text="${runningCount}"></div>
+          <div class="stat-sub">当前可执行账号</div>
         </div>
         <div class="card stat-card">
-          <div class="stat-label">今日完成任务</div>
-          <div class="stat-value" th:text="${doneTaskCount}"></div>
+          <div class="stat-label">今日完成</div>
+          <div class="stat-value" style="color:var(--accent);" th:text="${doneTaskCount}"></div>
+          <div class="stat-sub" th:text="'总任务数 ' + ${totalTaskCount}"></div>
+        </div>
+        <div class="card stat-card">
+          <div class="stat-label">未读消息</div>
+          <div class="stat-value" th:text="${unreadCount}"></div>
+          <div class="stat-sub">后台通知与审核消息</div>
         </div>
       </div>
     </div>
   </div>
 
-  <div class="card space-top">
-    <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;">
-      <h3>我的 QQ 账号</h3>
-      <a class="btn-soft" th:href="@{/user/tasks}">进入任务列表</a>
+  <div class="quick-actions space-top">
+    <a class="quick-action" th:href="@{/user/tasks}">
+      <div class="quick-action-icon">挂</div>
+      <div class="quick-action-label">任务开关</div>
+    </a>
+    <a class="quick-action" th:href="@{/user/orders}">
+      <div class="quick-action-icon">购</div>
+      <div class="quick-action-label">购买套餐</div>
+    </a>
+    <a class="quick-action" th:href="@{/user/messages}">
+      <div class="quick-action-icon">信</div>
+      <div class="quick-action-label">查看消息</div>
+    </a>
+    <a class="quick-action" th:href="@{/user/profile}">
+      <div class="quick-action-icon">我</div>
+      <div class="quick-action-label">资料设置</div>
+    </a>
+  </div>
+
+  <div class="page-grid grid-2 space-top">
+    <div class="card">
+      <div class="section-head">
+        <div class="section-title">快速接入 QQ</div>
+        <span class="tag accent">默认直接开启托管</span>
+      </div>
+      <form method="post" th:action="@{/user/qq-accounts}">
+        <label for="qqNumber">QQ 号码</label>
+        <input id="qqNumber" type="text" name="qqNumber" placeholder="输入新的 QQ 号码">
+        <label for="qqPassword">QQ 密码</label>
+        <input id="qqPassword" type="password" name="qqPassword" placeholder="输入 QQ 密码">
+        <label for="productId">选择套餐</label>
+        <select id="productId" name="productId">
+          <option th:each="item : ${products}" th:value="${item.id}" th:text="${item.name + ' / ¥' + item.price}"></option>
+        </select>
+        <button class="btn-primary" type="submit">立即接入</button>
+      </form>
+      <div class="callout space-top">
+        密码只用于当前示例链路保存和托管接入。这个版本优先保证可上线和可维护，不接短信与支付网关。
+      </div>
     </div>
-    <div th:if="${#lists.isEmpty(qqAccounts)}" class="muted">还没有 QQ 账号，先在上方接入一个账号。</div>
-    <div th:each="item : ${qqAccounts}" class="qq-card">
-      <div class="qq-avatar">Q</div>
-      <div class="qq-main">
-        <div class="qq-title" th:text="${item.qqNumber + ' / ' + item.nickname}"></div>
-        <div class="muted">
-          <span th:text="${item.packageName}"></span>
-          <span th:text="' · 到期 ' + ${#temporals.format(item.expireAt, 'MM-dd HH:mm')}"></span>
-          <span th:text="' · 最近执行 ' + ${#temporals.format(item.lastRunAt, 'MM-dd HH:mm')}"></span>
+
+    <div class="card">
+      <div class="section-head">
+        <div class="section-title">我的 QQ 账号</div>
+        <a class="btn-soft" th:href="@{/user/tasks}">进入任务列表</a>
+      </div>
+      <div class="qq-list" th:if="${!#lists.isEmpty(qqAccounts)}">
+        <div class="qq-card" th:each="item : ${qqAccounts}">
+          <div class="qq-avatar round">Q</div>
+          <div class="qq-main">
+            <div class="qq-title" th:text="${item.qqNumber + ' / ' + item.nickname}"></div>
+            <div class="qq-meta">
+              <span class="tag primary" th:text="${item.packageName}"></span>
+              <span th:text="'到期 ' + ${#temporals.format(item.expireAt, 'MM-dd HH:mm')}"></span>
+              <span th:text="'最近执行 ' + ${#temporals.format(item.lastRunAt, 'MM-dd HH:mm')}"></span>
+            </div>
+          </div>
+          <div class="task-actions">
+            <span class="tag success" th:if="${item.status.name() == 'RUNNING'}">运行中</span>
+            <span class="tag warning" th:if="${item.status.name() == 'PENDING'}">待执行</span>
+            <span class="tag danger" th:if="${item.status.name() == 'ERROR' || item.status.name() == 'EXPIRED'}" th:text="${item.status.name()}"></span>
+            <a class="btn-primary" th:href="@{/user/tasks(accountId=${item.id})}">管理</a>
+          </div>
         </div>
       </div>
-      <div class="task-actions">
-        <span class="tag success" th:if="${item.status.name() == 'RUNNING'}">运行中</span>
-        <span class="tag warning" th:if="${item.status.name() == 'PENDING'}">待执行</span>
-        <span class="tag danger" th:if="${item.status.name() == 'ERROR' || item.status.name() == 'EXPIRED'}" th:text="${item.status.name()}"></span>
-        <a class="btn-primary" th:href="@{/user/tasks(accountId=${item.id})}">管理</a>
-      </div>
+      <div class="empty-state" th:if="${#lists.isEmpty(qqAccounts)}">还没有接入 QQ，先在左侧添加一个账号。</div>
     </div>
   </div>
 
   <div class="page-grid grid-2 space-top">
     <div class="card">
-      <h3>推荐套餐</h3>
-      <div class="qq-card" th:each="item : ${products}">
-        <div class="qq-avatar" th:text="${item.versionTag.substring(0,1).toUpperCase()}"></div>
-        <div class="qq-main">
-          <div class="qq-title" th:text="${item.name}"></div>
-          <div class="muted" th:text="${item.summary}"></div>
-        </div>
-        <div style="text-align:right;">
-          <div class="qq-title" th:text="'¥' + ${item.price}"></div>
-          <div class="muted" th:text="${item.durationDays} + '天'"></div>
+      <div class="section-head">
+        <div class="section-title">推荐套餐</div>
+        <a class="btn-outline" th:href="@{/user/orders}">全部套餐</a>
+      </div>
+      <div class="qq-list">
+        <div class="qq-card" th:each="item : ${products}">
+          <div class="qq-avatar" th:text="${item.versionTag.substring(0,1).toUpperCase()}"></div>
+          <div class="qq-main">
+            <div class="qq-title" th:text="${item.name}"></div>
+            <div class="qq-meta">
+              <span th:text="${item.summary}"></span>
+            </div>
+          </div>
+          <div style="text-align:right;">
+            <div class="qq-title" th:text="'¥' + ${item.price}"></div>
+            <div class="muted" th:text="${item.durationDays} + '天'"></div>
+          </div>
         </div>
       </div>
     </div>
 
     <div class="card">
-      <h3>最新消息</h3>
-      <div class="message-item" th:each="item : ${messages}">
-        <div style="display:flex;justify-content:space-between;gap:12px;">
-          <strong th:text="${item.title}"></strong>
-          <span class="muted" th:text="${#temporals.format(item.createdAt, 'MM-dd HH:mm')}"></span>
-        </div>
-        <div class="muted" th:text="${item.content}"></div>
+      <div class="section-head">
+        <div class="section-title">最新消息</div>
+        <a class="btn-outline" th:href="@{/user/messages}">消息中心</a>
       </div>
+      <div class="message-list" th:if="${!#lists.isEmpty(messages)}">
+        <div class="message-item" th:each="item : ${messages}">
+          <div style="display:flex;justify-content:space-between;gap:12px;">
+            <strong th:text="${item.title}"></strong>
+            <span class="muted" th:text="${#temporals.format(item.createdAt, 'MM-dd HH:mm')}"></span>
+          </div>
+          <div class="muted" th:text="${item.content}"></div>
+        </div>
+      </div>
+      <div class="empty-state" th:if="${#lists.isEmpty(messages)}">暂无站内消息</div>
     </div>
   </div>
 </div>

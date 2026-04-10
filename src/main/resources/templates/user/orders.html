@@ -11,13 +11,20 @@
   <div class="topbar-inner">
     <div class="brand">
       <div class="brand-logo">M</div>
-      <div>莫言加速<small>套餐购买与订单记录</small></div>
+      <div class="brand-copy">
+        <span>墨言加速</span>
+        <small>套餐购买与订单记录</small>
+      </div>
     </div>
     <div class="nav-links">
       <a th:href="@{/user/dashboard}">首页</a>
       <a th:href="@{/user/tasks}">代挂任务</a>
       <a class="active" th:href="@{/user/orders}">购买套餐</a>
+      <a th:href="@{/user/messages}">站内消息</a>
       <a th:href="@{/user/profile}">我的资料</a>
+    </div>
+    <div class="topbar-right">
+      <div class="balance-chip" th:text="'余额 ¥' + ${currentUser.balance}"></div>
     </div>
   </div>
 </div>
@@ -26,24 +33,32 @@
   <div th:replace="~{fragments/flash :: flash}"></div>
 
   <div class="card">
-    <h2>选择你的套餐</h2>
-    <p class="muted">自用版不接支付网关，提交订单后由后台人工确认；如果余额足够，也支持直接余额支付。</p>
+    <div class="section-head">
+      <div>
+        <div class="section-title">选择你的套餐</div>
+        <div class="muted">当前版本不接支付网关，支持余额支付或人工确认。</div>
+      </div>
+      <a class="btn-soft" th:href="@{/user/wallet}">去钱包</a>
+    </div>
   </div>
 
   <div class="package-grid space-top">
     <div class="card package-card" th:each="item : ${products}" th:classappend="${item.featured} ? ' featured' : ''">
-      <div class="tag primary" th:text="${item.category}"></div>
+      <div class="featured-ribbon" th:if="${item.featured}">推荐套餐</div>
+      <span class="tag primary" th:text="${item.category}"></span>
       <h3 th:text="${item.name}"></h3>
-      <div class="package-price" th:text="'¥' + ${item.price}"><small>/月</small></div>
+      <div class="package-price">¥<span th:text="${item.price}"></span><small>/期</small></div>
       <div class="muted" th:text="${item.summary}"></div>
       <ul class="package-list">
         <li th:text="${item.durationDays} + ' 天服务时长'"></li>
-        <li>支持自动任务与后台监控</li>
-        <li>支持账号到期与状态查看</li>
+        <li>支持账号托管与任务执行状态展示</li>
+        <li>支持后台审核开通与站内消息提醒</li>
       </ul>
       <form method="post" th:action="@{/user/orders}">
         <input type="hidden" name="productId" th:value="${item.id}">
-        <input type="text" name="targetQq" th:value="${currentUser.qqNumber}" placeholder="下单QQ">
+        <label>下单 QQ</label>
+        <input type="text" name="targetQq" th:value="${currentUser.qqNumber}" placeholder="输入要开通的 QQ">
+        <label>支付方式</label>
         <select name="paymentMethod">
           <option value="BALANCE">余额支付</option>
           <option value="MANUAL">人工确认</option>
@@ -53,28 +68,42 @@
     </div>
   </div>
 
-  <div class="table-card space-top">
+  <div class="table-card space-top-lg">
     <div class="table-header">
-      <h3>订单记录</h3>
+      <div>
+        <h3 style="margin:0;">订单记录</h3>
+        <div class="muted">下单后由后台人工确认并开通。</div>
+      </div>
     </div>
     <table>
       <thead>
       <tr>
         <th>ID</th>
         <th>套餐</th>
-        <th>QQ</th>
+        <th>目标 QQ</th>
         <th>金额</th>
         <th>状态</th>
+        <th>支付方式</th>
         <th>备注</th>
       </tr>
       </thead>
       <tbody>
+      <tr th:if="${#lists.isEmpty(orders)}">
+        <td colspan="7">
+          <div class="empty-state">暂无订单记录</div>
+        </td>
+      </tr>
       <tr th:each="item : ${orders}">
         <td th:text="${item.id}"></td>
         <td th:text="${item.product.name}"></td>
         <td th:text="${item.targetQq}"></td>
-        <td th:text="${item.amount}"></td>
-        <td th:text="${item.status}"></td>
+        <td th:text="'¥' + ${item.amount}"></td>
+        <td>
+          <span class="tag success" th:if="${item.status.name() == 'COMPLETED'}">已开通</span>
+          <span class="tag primary" th:if="${item.status.name() == 'PAID'}">已支付</span>
+          <span class="tag warning" th:if="${item.status.name() == 'PENDING'}">待处理</span>
+        </td>
+        <td th:text="${item.paymentMethod}"></td>
         <td th:text="${item.notes}"></td>
       </tr>
       </tbody>

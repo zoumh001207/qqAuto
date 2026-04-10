@@ -14,46 +14,65 @@
     <aside class="monitor-sidebar">
       <div class="brand">
         <div class="brand-logo">M</div>
-        <div>管理后台<small>运行监控中心</small></div>
+        <div class="brand-copy">
+          <span>管理后台</span>
+          <small>运行监控中心</small>
+        </div>
       </div>
       <nav class="monitor-nav">
         <a class="active" th:href="@{/admin}">运行监控</a>
         <a href="#announcements">公告管理</a>
         <a href="#products">套餐配置</a>
         <a href="#orders">订单管理</a>
-        <a href="#messages">消息下发</a>
+        <a href="#finance">财务审核</a>
+        <a href="#messages">站内消息</a>
         <a th:href="@{/user/dashboard}">返回前台</a>
       </nav>
     </aside>
 
     <main class="monitor-main">
+      <div class="monitor-header">
+        <div>
+          <div class="monitor-title">运行监控</div>
+          <div class="muted">账号状态、订单审核、套餐配置都先集中在这一页完成。</div>
+        </div>
+        <span class="status-running">系统正常</span>
+      </div>
+
       <div class="stat-grid">
         <div class="card stat-card">
           <div class="stat-label">总用户数</div>
           <div class="stat-value" th:text="${users.size()}"></div>
+          <div class="stat-sub">平台注册用户</div>
         </div>
         <div class="card stat-card">
-          <div class="stat-label">接入 QQ 数</div>
-          <div class="stat-value" th:text="${qqAccounts.size()}"></div>
+          <div class="stat-label">接入 QQ</div>
+          <div class="stat-value" style="color:var(--primary);" th:text="${qqAccounts.size()}"></div>
+          <div class="stat-sub">当前托管账号</div>
         </div>
         <div class="card stat-card">
           <div class="stat-label">任务总数</div>
-          <div class="stat-value" th:text="${totalTaskExecutions}"></div>
+          <div class="stat-value" style="color:var(--accent);" th:text="${totalTaskExecutions}"></div>
+          <div class="stat-sub">所有账号任务偏好数</div>
         </div>
         <div class="card stat-card">
-          <div class="stat-label">已完成任务</div>
-          <div class="stat-value" th:text="${completedTaskExecutions}"></div>
+          <div class="stat-label">已完成</div>
+          <div class="stat-value" style="color:var(--success);" th:text="${completedTaskExecutions}"></div>
+          <div class="stat-sub">最近状态为已完成</div>
         </div>
       </div>
 
-      <div class="table-card">
+      <div class="table-card space-top">
         <div class="table-header">
-          <h3>账号运行状态</h3>
+          <div>
+            <h3 style="margin:0;">账号运行状态</h3>
+            <div class="muted">优先观察最近执行时间和到期时间。</div>
+          </div>
         </div>
         <table>
           <thead>
           <tr>
-            <th>QQ号</th>
+            <th>QQ 号</th>
             <th>归属用户</th>
             <th>套餐</th>
             <th>状态</th>
@@ -78,9 +97,12 @@
         </table>
       </div>
 
-      <div class="page-grid grid-2 space-top">
-        <div class="card" id="announcements">
-          <h3>发布公告</h3>
+      <div class="page-grid grid-2 space-top" id="announcements">
+        <div class="card">
+          <div class="section-head">
+            <div class="section-title">发布公告</div>
+            <span class="tag primary" th:text="${#lists.size(announcements)} + ' 条'"></span>
+          </div>
           <form method="post" th:action="@{/admin/announcement}">
             <label>标题</label>
             <input type="text" name="title">
@@ -93,7 +115,10 @@
         </div>
 
         <div class="card" id="products">
-          <h3>新增套餐</h3>
+          <div class="section-head">
+            <div class="section-title">新增套餐</div>
+            <span class="tag accent" th:text="${#lists.size(products)} + ' 个已配置'"></span>
+          </div>
           <form method="post" th:action="@{/admin/product}">
             <label>套餐名称</label>
             <input type="text" name="name">
@@ -116,7 +141,10 @@
 
       <div class="table-card space-top" id="orders">
         <div class="table-header">
-          <h3>订单管理</h3>
+          <div>
+            <h3 style="margin:0;">订单管理</h3>
+            <div class="muted">待处理订单直接在这里确认开通。</div>
+          </div>
         </div>
         <table>
           <thead>
@@ -126,6 +154,7 @@
             <th>套餐</th>
             <th>金额</th>
             <th>状态</th>
+            <th>目标 QQ</th>
             <th>操作</th>
           </tr>
           </thead>
@@ -134,8 +163,9 @@
             <td th:text="${item.id}"></td>
             <td th:text="${item.user.username}"></td>
             <td th:text="${item.product.name}"></td>
-            <td th:text="${item.amount}"></td>
+            <td th:text="'¥' + ${item.amount}"></td>
             <td th:text="${item.status}"></td>
+            <td th:text="${item.targetQq}"></td>
             <td>
               <form th:if="${item.status.name() != 'COMPLETED'}" th:action="@{'/admin/order/' + ${item.id} + '/approve'}" method="post">
                 <button class="btn-soft" type="submit">确认开通</button>
@@ -146,8 +176,79 @@
         </table>
       </div>
 
+      <div class="page-grid grid-2 space-top" id="finance">
+        <div class="table-card">
+          <div class="table-header">
+            <h3 style="margin:0;">充值审核</h3>
+          </div>
+          <table>
+            <thead>
+            <tr>
+              <th>ID</th>
+              <th>用户</th>
+              <th>金额</th>
+              <th>状态</th>
+              <th>操作</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:if="${#lists.isEmpty(recharges)}">
+              <td colspan="5"><div class="empty-state">暂无充值申请</div></td>
+            </tr>
+            <tr th:each="item : ${recharges}">
+              <td th:text="${item.id}"></td>
+              <td th:text="${item.user.username}"></td>
+              <td th:text="'¥' + ${item.amount}"></td>
+              <td th:text="${item.status}"></td>
+              <td>
+                <form th:if="${item.status.name() == 'PENDING'}" th:action="@{'/admin/recharge/' + ${item.id} + '/approve'}" method="post">
+                  <button class="btn-soft" type="submit">审核通过</button>
+                </form>
+              </td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="table-card">
+          <div class="table-header">
+            <h3 style="margin:0;">提现审核</h3>
+          </div>
+          <table>
+            <thead>
+            <tr>
+              <th>ID</th>
+              <th>用户</th>
+              <th>金额</th>
+              <th>状态</th>
+              <th>操作</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:if="${#lists.isEmpty(withdrawals)}">
+              <td colspan="5"><div class="empty-state">暂无提现申请</div></td>
+            </tr>
+            <tr th:each="item : ${withdrawals}">
+              <td th:text="${item.id}"></td>
+              <td th:text="${item.user.username}"></td>
+              <td th:text="'¥' + ${item.amount}"></td>
+              <td th:text="${item.status}"></td>
+              <td>
+                <form th:if="${item.status.name() == 'PENDING'}" th:action="@{'/admin/withdraw/' + ${item.id} + '/approve'}" method="post">
+                  <button class="btn-soft" type="submit">审核通过</button>
+                </form>
+              </td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
       <div class="card space-top" id="messages">
-        <h3>发送站内消息</h3>
+        <div class="section-head">
+          <div class="section-title">发送站内消息</div>
+          <span class="tag primary" th:text="${#lists.size(users)} + ' 个用户'"></span>
+        </div>
         <form method="post" th:action="@{/admin/message}">
           <label>目标用户</label>
           <select name="userId">
